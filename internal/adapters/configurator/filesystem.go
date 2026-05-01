@@ -47,6 +47,9 @@ func NewFileSystem(path string) (*FileSystem, error) {
 			if configData.Uri == "" {
 				return nil, fmt.Errorf("'uri' cannot be empty or missing. found in file %v", jsonFilePath)
 			}
+			if len(configData.Uri) > 0 && configData.Uri[len(configData.Uri)-1] == '/' {
+				configData.Uri = configData.Uri[:len(configData.Uri)-1]
+			}
 			if configData.BackupFolderPath == "" {
 				return nil, fmt.Errorf("'backupFolderPath' cannot be empty or missing. found in file %v", jsonFilePath)
 			}

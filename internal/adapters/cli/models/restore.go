@@ -137,9 +137,12 @@ func (m RestoreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.isRestoring {
-		switch msg.(type) {
+		switch msg := msg.(type) {
 		case restoreFinishedMsg:
 			m.isRestoring = false
+			if msg.err != nil {
+				log.Println(msg.err)
+			}
 			return m, tea.Quit
 		}
 	}
@@ -189,7 +192,7 @@ func (m RestoreModel) View() string {
 
 func (m RestoreModel) runRestoreCmd() tea.Cmd {
 	return func() tea.Msg {
-		m.restoreService.RestoreBackup(m.configOptions[m.cursorConfig], m.fileOptions[m.fileSelectCursor], m.uriInput.Value())
-		return restoreFinishedMsg{err: nil}
+		err := m.restoreService.RestoreBackup(m.configOptions[m.cursorConfig], m.fileOptions[m.fileSelectCursor], m.uriInput.Value())
+		return restoreFinishedMsg{err: err}
 	}
 }
