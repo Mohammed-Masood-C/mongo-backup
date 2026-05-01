@@ -1,6 +1,7 @@
 package services
 
 import (
+	"bytes"
 	"fmt"
 	"mongo-backup/internal/core/models"
 	"os"
@@ -15,11 +16,11 @@ func NewRestore() *Restore {
 	return &Restore{}
 }
 
-func (service *Restore) RestoreBackup(config models.Configuration, fileName string, mongoConnectionUri string) error {
+func (service *Restore) RestoreBackup(config models.Configuration, fileName string, mongoConnectionUri string) (string, error) {
 
 	filePath := filepath.Join(config.BackupFolderPath, fileName)
 	if _, err := os.Stat(filePath); err != nil {
-		return fmt.Errorf("restore failed for file at path %v: %w", fileName, err)
+		return "", fmt.Errorf("restore failed for file at path %v: %w", fileName, err)
 	}
 
 	cmd := exec.Command("mongorestore",
@@ -28,12 +29,15 @@ func (service *Restore) RestoreBackup(config models.Configuration, fileName stri
 		"--gzip",
 	)
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	var outBuffer bytes.Buffer
+	var errBuffer bytes.Buffer
+
+	cmd.Stdout = &outBuffer
+	cmd.Stderr = &errBuffer
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("restore failed to execute for file at path %v: %w", fileName, err)
+		return outBuffer.String() + errBuffer.String(), fmt.Errorf("restore failed to execute for file at path %v: %w", fileName, err)
 	}
 
-	return nil
+	return outBuffer.String() + errBuffer.String(), nil
 }

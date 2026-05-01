@@ -22,14 +22,19 @@ type RestoreModel struct {
 	inUriScreen bool
 	uriInput    textinput.Model
 
-	isRestoring bool
+	isRestoring  bool
+	restoreLog   string
+	restoreError error
+
+	isComplete bool
 
 	backupService  ports.BackupService
 	restoreService ports.RestoreService
 }
 
 type restoreFinishedMsg struct {
-	err error
+	restoreLog string
+	err        error
 }
 
 func InitialRestoreModel(configOptions []coreModels.Configuration, backupService ports.BackupService, restoreService ports.RestoreService) RestoreModel {
@@ -140,9 +145,9 @@ func (m RestoreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case restoreFinishedMsg:
 			m.isRestoring = false
-			if msg.err != nil {
-				log.Println(msg.err)
-			}
+			m.restoreError = msg.err
+			m.restoreLog = msg.restoreLog
+			m.isComplete = true
 			return m, tea.Quit
 		}
 	}
@@ -182,9 +187,19 @@ func (m RestoreModel) View() string {
 	}
 
 	if m.isRestoring {
-		s += fmt.Sprintf("[Restore in progress]\n\n")
+		s += fmt.Sprintf("[Restore In Progress]\n\n")
 		s += fmt.Sprintf("%v -> %v\n\n", m.fileOptions[m.fileSelectCursor], m.uriInput.Value())
 		s += "please wait..."
+	}
+
+	if m.isComplete {
+		s += fmt.Sprintf("[Restore Output]\n\n")
+		if m.restoreError != nil {
+			s += fmt.Sprintf("Error:\n%v\n\n", m.restoreError)
+			s += fmt.Sprintf("Mongorestore :\n%v\n\n", m.restoreLog)
+		} else {
+			s += fmt.Sprintf("Mongorestore :\n%v\n\n", m.restoreLog)
+		}
 	}
 
 	return s
@@ -192,7 +207,7 @@ func (m RestoreModel) View() string {
 
 func (m RestoreModel) runRestoreCmd() tea.Cmd {
 	return func() tea.Msg {
-		err := m.restoreService.RestoreBackup(m.configOptions[m.cursorConfig], m.fileOptions[m.fileSelectCursor], m.uriInput.Value())
-		return restoreFinishedMsg{err: err}
+		restoreLog, err := m.restoreService.RestoreBackup(m.configOptions[m.cursorConfig], m.fileOptions[m.fileSelectCursor], m.uriInput.Value())
+		return restoreFinishedMsg{restoreLog: restoreLog, err: err}
 	}
 }

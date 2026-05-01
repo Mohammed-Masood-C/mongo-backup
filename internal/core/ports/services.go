@@ -8,5 +8,5 @@ type BackupService interface {
 }
 
 type RestoreService interface {
-	RestoreBackup(config models.Configuration, fileName string, mongoConnectionUri string) error
+	RestoreBackup(config models.Configuration, fileName string, mongoConnectionUri string) (string, error)
 }
