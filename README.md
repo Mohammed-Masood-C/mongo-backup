@@ -39,10 +39,15 @@ Inside the `mongo-backup` folder, create a JSON file for each database you want 
 
 ### 📁 File Naming
 
-Each configuration file should be named like:
+It is reccomended for your configuration files to be named like:
 
 ```text
 databasename.json
+```
+
+In the case of tracking same database name across different mongo clusters, use names like below:
+```text
+cluster1-databasename.json
 ```
 
 ### 📝 Example Configuration
