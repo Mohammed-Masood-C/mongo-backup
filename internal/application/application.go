@@ -47,6 +47,6 @@ func NewApplication(applicationConfigPath string) (*Application, error) {
 		BackupConfigPath:      backupConfigPath,
 		Configurator:          fileSystemConfigurator,
 		BackupService:         services.NewBackup(backupLogsPath),
-		RestoreService:        services.NewRestore(),
+		RestoreService:        services.NewRestore(restoreLogsPath),
 	}, nil
 }
