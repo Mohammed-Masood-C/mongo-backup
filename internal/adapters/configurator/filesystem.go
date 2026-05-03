@@ -15,19 +15,16 @@ type FileSystem struct {
 
 func NewFileSystem(path string) (*FileSystem, error) {
 
-	err := os.MkdirAll(path, 0755)
-	if err != nil {
-		return nil, fmt.Errorf("failed creating backup folder at path %v: %w", path, err)
-	}
-
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed reading backup folder at path %v: %w", path, err)
 	}
 
 	var allConfigs []models.Configuration
+	hasOneConfigFile := false
 	for _, file := range files {
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".json" {
+			hasOneConfigFile = true
 			jsonFilePath := filepath.Join(path, file.Name())
 			data, err := os.ReadFile(jsonFilePath)
 			if err != nil {
@@ -60,6 +57,10 @@ func NewFileSystem(path string) (*FileSystem, error) {
 
 			allConfigs = append(allConfigs, configData)
 		}
+	}
+
+	if !hasOneConfigFile {
+		return nil, fmt.Errorf("0 configuration files have been found at path %v", path)
 	}
 
 	return &FileSystem{

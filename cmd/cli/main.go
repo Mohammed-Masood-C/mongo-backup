@@ -9,14 +9,14 @@ import (
 )
 
 func main() {
-	userConfigPath, err := os.UserConfigDir()
+	applicationConfigPath, err := os.UserConfigDir()
 	if err != nil {
 		log.Fatalf("failed retrieving UserConfigDir: %v", err)
 		return
 	}
-	backupConfigPath := filepath.Join(userConfigPath, "mongo-backup")
+	applicationConfigPath = filepath.Join(applicationConfigPath, "mongo-backup")
 
-	app, err := application.NewApplication(backupConfigPath)
+	app, err := application.NewApplication(applicationConfigPath)
 	if err != nil {
 		log.Fatalf("failed creating new application: %v", err)
 	}
