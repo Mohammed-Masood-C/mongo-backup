@@ -4,10 +4,20 @@ A simple, lightweight command-line tool for backing up and restoring MongoDB dat
 
 ---
 
+## 📋 Prerequisites
+
+This tool acts as a wrapper for the official MongoDB Database Tools. You must have the following installed and available in your system's PATH:
+
+`mongodump`: Required for creating backups.
+`mongorestore`: Required for restoring databases.
+
+---
+
 ## 🚀 Features
 
 * Backup MongoDB databases to local files
 * Restore databases from backups
+* Detailed logging for every operation
 
 ---
 
@@ -28,14 +38,16 @@ backup.exe
 This will automatically create a configuration folder at:
 
 ```text
-%APPDATA%\mongo-backup
+%APPDATA%\mongo-backup\backup
+%APPDATA%\mongo-backup\backup-logs
+%APPDATA%\mongo-backup\restore-logs
 ```
 
 ---
 
 ## 🧩 Configuration
 
-Inside the `mongo-backup` folder, create a JSON file for each database you want to manage.
+Inside the `mongo-backup\backup` folder, create a JSON file for each database you want to manage.
 
 ### 📁 File Naming
 
@@ -45,7 +57,7 @@ It is reccomended for your configuration files to be named like:
 databasename.json
 ```
 
-In the case of tracking same database name across different mongo clusters, use names like below:
+In the case of tracking the same database name across different mongo clusters, use names like below:
 ```text
 cluster1-databasename.json
 ```
@@ -71,6 +83,14 @@ After adding your configuration files, run:
 ```bash
 backup.exe
 ```
+
+---
+
+## 📜 Logs
+Every time you run a backup or restore, a detailed log file is generated. If an operation fails, check these folders for the full command output:
+
+Backup History: `%APPDATA%\mongo-backup\backup-logs`
+Restore History: `%APPDATA%\mongo-backup\restore-logs`
 
 ---
 
